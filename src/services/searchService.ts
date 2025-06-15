@@ -13,7 +13,8 @@ class SearchService {
 
   constructor() {
     // Update this URL when you have your Streamlit backend running
-    this.baseUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8501';
+    // Use a fallback since process.env might not be available in all environments
+    this.baseUrl = (typeof process !== 'undefined' && process.env?.REACT_APP_BACKEND_URL) || 'http://localhost:8501';
   }
 
   async search(query: string): Promise<string> {
