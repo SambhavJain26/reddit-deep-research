@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,16 +11,36 @@ const Index = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeStep, setActiveStep] = useState(-1);
+  const [showSteps, setShowSteps] = useState(false);
   const { toast } = useToast();
+
+  const steps = [
+    "Search Reddit",
+    "Analyze Posts", 
+    "Generate Insights",
+    "Final Report"
+  ];
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     setIsLoading(true);
+    setResults(null);
+    setActiveStep(-1);
+    setShowSteps(true);
     
+    // Start the step animation
+    for (let i = 0; i < steps.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, i === 0 ? 100 : 1500));
+      setActiveStep(i);
+    }
+
     try {
       const result = await searchService.search(query);
+      // Wait a bit after final step before showing results
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setResults(result);
     } catch (error) {
       toast({
@@ -75,25 +95,29 @@ const Index = () => {
             </div>
           </form>
 
-          {/* Process Steps */}
-          <div className="flex items-center justify-center space-x-8 text-sm text-gray-500 mt-8">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-              <span>Search Reddit</span>
+          {/* Animated Process Steps */}
+          {showSteps && (
+            <div className={`flex items-center justify-center space-x-6 text-sm text-gray-500 transition-all duration-500 ease-out ${showSteps ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+              {steps.map((step, index) => (
+                <div key={index} className="flex items-center space-x-2 transition-all duration-300">
+                  <div 
+                    className={`w-3 h-3 rounded-full transition-all duration-500 ${
+                      activeStep >= index ? 'bg-orange-500 scale-110' : 'bg-gray-300'
+                    }`}
+                  ></div>
+                  <span className={`transition-colors duration-300 ${
+                    activeStep >= index ? 'text-orange-600 font-medium' : 'text-gray-500'
+                  }`}>
+                    {step}
+                  </span>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-              <span>Analyze Posts</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-              <span>Generate Insights</span>
-            </div>
-          </div>
+          )}
 
           {/* Results Section */}
           {results && (
-            <Card className="bg-white border border-gray-200 shadow-lg text-left mt-8">
+            <Card className="bg-white border border-gray-200 shadow-lg text-left mt-8 animate-fade-in">
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
                   <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
