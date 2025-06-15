@@ -16,10 +16,10 @@ const Index = () => {
   const { toast } = useToast();
 
   const steps = [
-    "Search Reddit",
-    "Analyze Posts", 
-    "Generate Insights",
-    "Final Report"
+    "searching reddit",
+    "analyzing posts", 
+    "generating insights",
+    "final report"
   ];
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -97,16 +97,19 @@ const Index = () => {
 
           {/* Animated Process Steps */}
           {showSteps && (
-            <div className={`flex items-center justify-center space-x-6 text-sm text-gray-500 transition-all duration-500 ease-out ${showSteps ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+            <div className={`relative flex items-center justify-center space-x-8 text-sm transition-all duration-500 ease-out ${showSteps ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
               {steps.map((step, index) => (
-                <div key={index} className="flex items-center space-x-2 transition-all duration-300">
-                  <div 
-                    className={`w-3 h-3 rounded-full transition-all duration-500 ${
-                      activeStep >= index ? 'bg-orange-500 scale-110' : 'bg-gray-300'
-                    }`}
-                  ></div>
-                  <span className={`transition-colors duration-300 ${
-                    activeStep >= index ? 'text-orange-600 font-medium' : 'text-gray-500'
+                <div key={index} className="relative z-10 px-4 py-2 transition-all duration-300">
+                  {/* Active step background box */}
+                  {activeStep === index && (
+                    <div className="absolute inset-0 bg-orange-500 rounded-lg transition-all duration-500 ease-in-out transform"></div>
+                  )}
+                  <span className={`relative z-20 transition-colors duration-300 font-medium ${
+                    activeStep === index 
+                      ? 'text-white' 
+                      : activeStep > index 
+                        ? 'text-orange-600' 
+                        : 'text-gray-500'
                   }`}>
                     {step}
                   </span>
