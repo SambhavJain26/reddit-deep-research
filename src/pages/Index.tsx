@@ -31,16 +31,27 @@ const Index = () => {
     setActiveStep(-1);
     setShowSteps(true);
     
-    // Start the step animation
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, i === 0 ? 100 : 1500));
-      setActiveStep(i);
-    }
+    // Start the step animation based on Python model timing
+    // Step 1: Planning... (2s)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    setActiveStep(0);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Step 2: Searching... (3s)  
+    setActiveStep(1);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Step 3: Writing report... (1s)
+    setActiveStep(2);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Step 4: Done! (5s)
+    setActiveStep(3);
 
     try {
       const result = await searchService.search(query);
-      // Wait a bit after final step before showing results
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait 5 seconds as per Python model before showing results
+      await new Promise(resolve => setTimeout(resolve, 5000));
       setResults(result);
     } catch (error) {
       toast({
