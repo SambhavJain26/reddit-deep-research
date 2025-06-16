@@ -54,27 +54,22 @@ const Index = () => {
     try {
       // Use streaming search for real-time updates
       const streamingGenerator = searchService.searchStreaming(query);
-      let stepIndex = 0;
       
       for await (const chunk of streamingGenerator) {
         console.log('Received chunk:', chunk);
         setCurrentStatus(chunk);
         
-        // Update step based on content
-        if (chunk.includes("planned") || chunk.includes("planning")) {
-          setActiveStep(0);
-        } else if (chunk.includes("search") && !chunk.includes("complete")) {
-          setActiveStep(1);
-        } else if (chunk.includes("writing") || chunk.includes("report")) {
-          setActiveStep(2);
-        } else if (chunk.includes("Report written") || chunk.includes("email")) {
-          setActiveStep(3);
-        }
-        
-        // If this looks like a final report (markdown content), set it as results
-        if (chunk.includes("#") || chunk.length > 500) {
+        // Map the exact yield statements from research_manager.py to steps
+        if (chunk.includes("Searches planned, starting to search")) {
+          setActiveStep(0); // planning searches
+        } else if (chunk.includes("Searches complete, writing report")) {
+          setActiveStep(1); // searching reddit
+        } else if (chunk.includes("Report written, sending email")) {
+          setActiveStep(2); // writing report
+        } else if (chunk.includes("#") || chunk.length > 500) {
+          // This is the final markdown report
           setResults(chunk);
-          setActiveStep(3);
+          setActiveStep(3); // finalizing
         }
       }
       
@@ -121,8 +116,8 @@ const Index = () => {
           <div className="space-y-6">
             <div className="flex justify-center">
               <img 
-                src="https://images.unsplash.com/photo-1487252665478-49b61b47f302" 
-                alt="Reddit" 
+                src="https://i.postimg.cc/sXt3ZvLF/54018bb5d58887e39c92a1f54164d421.png" 
+                alt="Reddit Research Engine" 
                 className="w-16 h-16 rounded-full object-cover"
               />
             </div>
@@ -193,7 +188,7 @@ const Index = () => {
             </div>
           )}
 
-          {/* Results Section */}
+          {/* Results Section - This displays the Python output */}
           {results && (
             <Card className="bg-white border border-gray-200 shadow-lg text-left mt-8 animate-fade-in">
               <CardContent className="p-6">
