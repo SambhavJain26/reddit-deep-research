@@ -69,14 +69,23 @@ const Index = () => {
       {/* Header */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div className="w-full max-w-2xl text-center space-y-8">
-          {/* Title and Tagline */}
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-              Reddit Research Engine
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600">
-              Ask the internet's underground brain trust.
-            </p>
+          {/* Reddit Icon and Title */}
+          <div className="space-y-6">
+            <div className="flex justify-center">
+              <img 
+                src="https://images.unsplash.com/photo-1487252665478-49b61b47f302" 
+                alt="Reddit" 
+                className="w-16 h-16 rounded-full object-cover"
+              />
+            </div>
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+                Reddit Research Engine
+              </h1>
+              <p className="text-lg md:text-xl text-gray-600">
+                Ask the internet's underground brain trust.
+              </p>
+            </div>
           </div>
 
           {/* Search Form */}
