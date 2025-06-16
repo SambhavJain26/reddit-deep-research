@@ -22,8 +22,8 @@ class SearchService {
   private baseUrl: string;
 
   constructor() {
-    // Python FastAPI backend URL - hardcoded for demo
-    this.baseUrl = 'http://localhost:8000';
+    // Python FastAPI backend URL
+    this.baseUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
   }
 
   async search(query: string): Promise<{ sessionId: string; statusGenerator: AsyncGenerator<SearchStatus> }> {
