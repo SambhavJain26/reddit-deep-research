@@ -1,5 +1,6 @@
 
-// Search service to communicate with FastAPI Python backend
+// Search service to communicate with Streamlit backend
+// This is a placeholder implementation that can be easily replaced
 
 export interface SearchResult {
   query: string;
@@ -7,29 +8,25 @@ export interface SearchResult {
   timestamp: Date;
 }
 
-export interface SearchSession {
-  session_id: string;
-  status: string;
-}
-
-export interface SearchStatus {
-  status: 'processing' | 'completed';
-  current_step: string;
-  result?: string;
-}
-
 class SearchService {
   private baseUrl: string;
 
   constructor() {
-    // Python FastAPI backend URL
-    this.baseUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+    // Update this URL when you have your Streamlit backend running
+    // Use a fallback since process.env might not be available in all environments
+    this.baseUrl = (typeof process !== 'undefined' && process.env?.REACT_APP_BACKEND_URL) || 'http://localhost:8501';
   }
 
-  async search(query: string): Promise<{ sessionId: string; statusGenerator: AsyncGenerator<SearchStatus> }> {
+  async search(query: string): Promise<string> {
     try {
-      // Start the search session
-      const response = await fetch(`${this.baseUrl}/api/search`, {
+      // Placeholder implementation - replace with actual Streamlit API call
+      // For now, just return the static demo response
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+      return "search result shown";
+
+      // Future implementation would look like this:
+      /*
+      const response = await fetch(`${this.baseUrl}/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,43 +35,15 @@ class SearchService {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to start search: ${response.statusText}`);
+        throw new Error(`Search failed: ${response.statusText}`);
       }
 
-      const session: SearchSession = await response.json();
-      
-      return {
-        sessionId: session.session_id,
-        statusGenerator: this.pollStatus(session.session_id)
-      };
+      const data = await response.json();
+      return data.result;
+      */
     } catch (error) {
       console.error('Search error:', error);
       throw new Error('Failed to perform search. Please try again.');
-    }
-  }
-
-  private async *pollStatus(sessionId: string): AsyncGenerator<SearchStatus> {
-    while (true) {
-      try {
-        const response = await fetch(`${this.baseUrl}/api/search/${sessionId}/status`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to get status: ${response.statusText}`);
-        }
-
-        const status: SearchStatus = await response.json();
-        yield status;
-
-        if (status.status === 'completed') {
-          break;
-        }
-
-        // Poll every 500ms
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } catch (error) {
-        console.error('Status polling error:', error);
-        throw error;
-      }
     }
   }
 }
