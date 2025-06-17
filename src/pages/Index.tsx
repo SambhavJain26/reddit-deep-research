@@ -52,30 +52,39 @@ const Index = () => {
     setShowSteps(true);
     setCurrentStatus("Starting research...");
     
+    // Show step animations with 2-second delays
+    setTimeout(() => {
+      setActiveStep(0);
+      setCurrentStatus("Planning searches...");
+    }, 500);
+    
+    setTimeout(() => {
+      setActiveStep(1);
+      setCurrentStatus("Searching reddit...");
+    }, 2500);
+    
+    setTimeout(() => {
+      setActiveStep(2);
+      setCurrentStatus("Writing report...");
+    }, 4500);
+    
+    setTimeout(() => {
+      setActiveStep(3);
+      setCurrentStatus("Finalizing...");
+    }, 6500);
+    
     try {
       // Use streaming search for real-time updates
       const streamingGenerator = searchService.searchStreaming(query);
       
       for await (const chunk of streamingGenerator) {
         console.log('Received chunk:', chunk);
-        setCurrentStatus(chunk);
         
-        // Map the exact yield statements from research_manager.py to steps
-        if (chunk === "Searches planned, starting to search...") {
-          console.log('Setting step to 0 - Planning searches');
-          setActiveStep(0);
-        } else if (chunk === "Searches complete, writing report...") {
-          console.log('Setting step to 1 - Searching reddit');
-          setActiveStep(1);
-        } else if (chunk === "Report written, sending email...") {
-          console.log('Setting step to 2 - Writing report');
-          setActiveStep(2);
-        } else if (chunk.includes("#") && chunk.length > 100) {
+        if (chunk.includes("#") && chunk.length > 100) {
           // This is the final markdown report
-          console.log('Setting step to 3 - Finalizing');
-          setActiveStep(3);
           setResults(chunk);
           setCurrentStatus("Research completed!");
+          break;
         }
       }
       
@@ -84,11 +93,8 @@ const Index = () => {
       
       // Fallback to simple search
       try {
-        setCurrentStatus("Performing search...");
-        setActiveStep(1);
         const result = await searchService.search(query);
         setResults(result);
-        setActiveStep(3);
         setCurrentStatus("Search completed!");
       } catch (fallbackError) {
         toast({
@@ -98,7 +104,9 @@ const Index = () => {
         });
       }
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 7000); // Complete after all animations
     }
   };
 
