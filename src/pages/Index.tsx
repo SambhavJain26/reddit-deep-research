@@ -50,7 +50,7 @@ const Index = () => {
     setResults(null);
     setActiveStep(-1);
     setShowSteps(true);
-    setCurrentStatus("");
+    setCurrentStatus("Starting research...");
     
     try {
       // Use streaming search for real-time updates
@@ -60,20 +60,22 @@ const Index = () => {
         console.log('Received chunk:', chunk);
         setCurrentStatus(chunk);
         
-        // Map the exact yield statements from research_manager.py to steps with delays
-        if (chunk.includes("Searches planned, starting to search")) {
-          setActiveStep(0); // planning searches
-          await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for animation
-        } else if (chunk.includes("Searches complete, writing report")) {
-          setActiveStep(1); // searching reddit
-          await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for animation
-        } else if (chunk.includes("Report written, sending email")) {
-          setActiveStep(2); // writing report
-          await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for animation
-        } else if (chunk.includes("#") || chunk.length > 500) {
+        // Map the exact yield statements from research_manager.py to steps
+        if (chunk === "Searches planned, starting to search...") {
+          console.log('Setting step to 0 - Planning searches');
+          setActiveStep(0);
+        } else if (chunk === "Searches complete, writing report...") {
+          console.log('Setting step to 1 - Searching reddit');
+          setActiveStep(1);
+        } else if (chunk === "Report written, sending email...") {
+          console.log('Setting step to 2 - Writing report');
+          setActiveStep(2);
+        } else if (chunk.includes("#") && chunk.length > 100) {
           // This is the final markdown report
+          console.log('Setting step to 3 - Finalizing');
+          setActiveStep(3);
           setResults(chunk);
-          setActiveStep(3); // finalizing
+          setCurrentStatus("Research completed!");
         }
       }
       
@@ -87,6 +89,7 @@ const Index = () => {
         const result = await searchService.search(query);
         setResults(result);
         setActiveStep(3);
+        setCurrentStatus("Search completed!");
       } catch (fallbackError) {
         toast({
           title: "Search Error",
@@ -163,7 +166,7 @@ const Index = () => {
           </form>
 
           {/* Current Status */}
-          {currentStatus && isLoading && (
+          {currentStatus && (
             <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
               <p className="font-medium">Status: {currentStatus}</p>
             </div>
@@ -173,12 +176,12 @@ const Index = () => {
           {showSteps && (
             <div className={`relative flex items-center justify-center space-x-8 text-sm transition-all duration-500 ease-out ${showSteps ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
               {steps.map((step, index) => (
-                <div key={index} className="relative z-10 px-4 py-2 transition-all duration-300">
+                <div key={index} className="relative z-10 px-4 py-2 transition-all duration-500">
                   {/* Active step background box */}
                   {activeStep === index && (
-                    <div className="absolute inset-0 bg-orange-500 rounded-lg transition-all duration-500 ease-in-out transform"></div>
+                    <div className="absolute inset-0 bg-orange-500 rounded-lg transition-all duration-500 ease-in-out transform animate-scale-in"></div>
                   )}
-                  <span className={`relative z-20 transition-colors duration-300 font-medium ${
+                  <span className={`relative z-20 transition-colors duration-500 font-medium ${
                     activeStep === index 
                       ? 'text-white' 
                       : activeStep > index 

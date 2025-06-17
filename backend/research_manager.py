@@ -12,12 +12,20 @@ class ResearchManager:
         trace_id = gen_trace_id()
         with trace("Research trace", trace_id=trace_id):
             print("Starting research...")
+            
+            # Step 1: Planning
             search_plan = await self.plan_searches(query)
-            yield "Searches planned, starting to search..."     
+            yield "Searches planned, starting to search..."
+            
+            # Step 2: Searching  
             search_results = await self.perform_searches(search_plan)
             yield "Searches complete, writing report..."
+            
+            # Step 3: Writing report
             report = await self.write_report(query, search_results)
             yield "Report written, sending email..."
+            
+            # Step 4: Final result
             yield report.markdown_report
         
 
