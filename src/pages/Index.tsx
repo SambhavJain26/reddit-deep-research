@@ -19,10 +19,10 @@ const Index = () => {
   const { toast } = useToast();
 
   const steps = [
-    "planning searches",
-    "searching reddit", 
-    "writing report",
-    "finalizing"
+    "Planning searches",
+    "Searching reddit", 
+    "Writing report",
+    "Finalizing"
   ];
 
   // Check backend health on component mount
