@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Search, AlertCircle } from "lucide-react";
 import { searchService } from "@/services/searchService";
 import { useToast } from "@/hooks/use-toast";
+import ReactMarkdown from 'react-markdown';
 
 const Index = () => {
   const [query, setQuery] = useState("");
@@ -59,13 +60,16 @@ const Index = () => {
         console.log('Received chunk:', chunk);
         setCurrentStatus(chunk);
         
-        // Map the exact yield statements from research_manager.py to steps
+        // Map the exact yield statements from research_manager.py to steps with delays
         if (chunk.includes("Searches planned, starting to search")) {
           setActiveStep(0); // planning searches
+          await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for animation
         } else if (chunk.includes("Searches complete, writing report")) {
           setActiveStep(1); // searching reddit
+          await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for animation
         } else if (chunk.includes("Report written, sending email")) {
           setActiveStep(2); // writing report
+          await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for animation
         } else if (chunk.includes("#") || chunk.length > 500) {
           // This is the final markdown report
           setResults(chunk);
@@ -188,7 +192,7 @@ const Index = () => {
             </div>
           )}
 
-          {/* Results Section - This displays the Python output */}
+          {/* Results Section - This displays the Python output in proper markdown */}
           {results && (
             <Card className="bg-white border border-gray-200 shadow-lg text-left mt-8 animate-fade-in">
               <CardContent className="p-6">
@@ -196,8 +200,8 @@ const Index = () => {
                   <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
                   Research Report
                 </h2>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed prose prose-sm max-w-none">
-                  {results}
+                <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+                  <ReactMarkdown>{results}</ReactMarkdown>
                 </div>
               </CardContent>
             </Card>
