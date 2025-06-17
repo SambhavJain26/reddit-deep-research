@@ -7,9 +7,9 @@ INSTRUCTIONS = (
     "You will be provided with the original query, and some initial research done by a research assistant.\n"
     "You should first come up with an outline for the report based on the query that describes the structure and "
     "flow of the report. The topics of the report should be highlighted based on the research done by the research assistant."
-    "Then, generate the report and return that as your final output. Add the reddit post url to the report in the references section.\n"
+    "Then, generate the report and return that as your final output. Do not add any references to the report.\n"
     "The final output should be in markdown format, and it should cover the research done by the research assistant briefly "
-    "Maximum 500 words. The report should be concise and to the point."
+    "Maximum 500 words. The report should be concise and to the point. Again do not add any references to the final report."
 )
 
 
