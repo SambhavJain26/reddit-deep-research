@@ -14,7 +14,7 @@ class WebSearchItem(BaseModel):
 
 
 class WebSearchPlan(BaseModel):
-    searches: list[WebSearchItem] = Field(description="A list of redditweb searches to perform to best answer the query.")
+    searches: list[WebSearchItem] = Field(description="A list of reddit web searches to perform to best answer the query.")
     
 planner_agent = Agent(
     name="PlannerAgent",
