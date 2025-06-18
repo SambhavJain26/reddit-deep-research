@@ -19,8 +19,8 @@ reddit-research-engine/
 │   ├── planner_agent.py       # Plans search queries
 │   ├── search_agent.py        # Performs Reddit searches
 │   ├── writer_agent.py        # Generates final reports
-│   ├── requirements.txt       # Python dependencies
 │   └── README.md              # Backend-specific documentation
+├── pyproject.toml             # Python dependencies and project config
 └── README.md                  # This file
 ```
 
@@ -36,19 +36,38 @@ reddit-research-engine/
 ## Quick Start
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- Python 3.8 or higher
-- pip (Python package installer)
+- **uv** (Python package manager) - [Installation Guide](https://docs.astral.sh/uv/getting-started/installation/)
+- **Node.js** (v16 or higher)
+- **Python** 3.12 or higher (managed by uv)
 
-### 1. Clone the Repository
+### 1. Install uv
+First, install uv following the instructions at: https://docs.astral.sh/uv/getting-started/installation/
+
+For most systems:
+```bash
+# macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### 2. Clone the Repository
 ```bash
 git clone <your-repo-url>
 cd reddit-research-engine
 ```
 
-### 2. Set Up the Frontend
+### 3. Set Up Python Dependencies
 ```bash
-# Install dependencies
+# Install all Python dependencies with uv
+uv sync
+```
+This will automatically create a virtual environment and install all dependencies from `pyproject.toml`.
+
+### 4. Set Up the Frontend
+```bash
+# Install Node.js dependencies
 npm install
 
 # Start the development server
@@ -56,29 +75,18 @@ npm run dev
 ```
 The React app will be available at `http://localhost:5173`
 
-### 3. Set Up the Backend
+### 5. Set Up Environment Variables
+Create a `.env` file in the project root:
 ```bash
-# Navigate to backend directory
-cd backend
+# Required API keys
+OPENAI_API_KEY=your_openai_api_key_here
+# Add other API keys as needed
+```
 
-# Create virtual environment (recommended)
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Set up environment variables
-# Create a .env file and add your API keys:
-# OPENAI_API_KEY=your_openai_api_key_here
-
-# Start the Flask server
-python app.py
+### 6. Start the Backend
+```bash
+# Run the Flask server using uv
+uv run backend/app.py
 ```
 The backend will be available at `http://localhost:5001`
 
@@ -121,14 +129,14 @@ data: {"type": "chunk", "data": "# Final Report\n\nYour research results..."}
 ## Configuration
 
 ### Environment Variables
-Create a `.env` file in the backend directory:
+Create a `.env` file in the project root:
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
 # Add other API keys as needed
 ```
 
 ### Frontend Configuration
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (if different from backend):
 ```bash
 REACT_APP_BACKEND_URL=http://localhost:5001
 ```
@@ -147,12 +155,22 @@ REACT_APP_BACKEND_URL=http://localhost:5001
 - **AI Agents** library for intelligent research
 - **asyncio** for concurrent processing
 - **CORS** for cross-origin requests
+- **uv** for dependency management
 
 ## Development
 
 ### Adding New Features
 - **Frontend**: Add components in `src/components/` or pages in `src/pages/`
 - **Backend**: Modify agents in respective files or update the research flow in `research_manager.py`
+
+### Adding Python Dependencies
+```bash
+# Add a new dependency
+uv add package-name
+
+# Add a development dependency
+uv add --dev package-name
+```
 
 ### Customizing Research Agents
 Each agent can be customized by editing their respective files:
@@ -163,13 +181,13 @@ Each agent can be customized by editing their respective files:
 ## Troubleshooting
 
 ### Backend Issues
-- Ensure Python 3.8+ is installed
-- Verify virtual environment is activated
-- Check that all dependencies are installed: `pip list`
-- Confirm API keys are set in `.env` file
+- Ensure uv is installed: `uv --version`
+- Verify virtual environment: `uv sync` in project directory
+- Check that API keys are set in `.env` file
+- Run with verbose output: `uv run --verbose backend/app.py`
 
 ### Frontend Issues
-- Verify Node.js 16+ is installed
+- Verify Node.js 16+ is installed: `node --version`
 - Clear browser cache and reload
 - Check browser console for errors
 - Ensure backend is running on port 5001
@@ -178,6 +196,12 @@ Each agent can be customized by editing their respective files:
 - Verify Flask server is running on `http://localhost:5001`
 - Check firewall settings
 - Ensure CORS is properly configured
+- Test backend health: `curl http://localhost:5001/health`
+
+### Dependency Issues
+- Recreate environment: `uv sync --reinstall`
+- Check Python version: `uv python list`
+- Update dependencies: `uv sync --upgrade`
 
 ## Deployment
 
@@ -190,17 +214,27 @@ npm run build
 ### Backend
 ```bash
 # For production, consider using gunicorn
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5001 app:app
+uv add gunicorn
+uv run gunicorn -w 4 -b 0.0.0.0:5001 backend.app:app
 ```
+
+## Project Dependencies
+
+The project uses `pyproject.toml` for Python dependency management with uv. Key dependencies include:
+
+- **AI & ML**: anthropic, openai, langchain, langgraph
+- **Web Framework**: flask, flask-cors
+- **Data Processing**: requests, bs4, lxml, pypdf
+- **Development Tools**: gradio, ipywidgets, ipykernel
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+3. Install dependencies: `uv sync`
+4. Make your changes
+5. Test thoroughly
+6. Submit a pull request
 
 ## License
 
