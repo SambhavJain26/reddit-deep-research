@@ -1,0 +1,21 @@
+
+# Core Flask dependencies
+flask==2.3.3
+flask-cors==4.0.0
+
+# Environment and configuration
+python-dotenv==1.0.0
+
+# Data validation and serialization
+pydantic==2.5.0
+
+# AI and research agents
+agents==0.1.0
+
+# Async processing
+asyncio
+
+# Additional useful packages for development and production
+gunicorn==21.2.0
+pytest==7.4.3
+requests==2.31.0

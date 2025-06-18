@@ -1,205 +1,207 @@
 
 # Reddit Research Engine
 
-A clean, dark-themed search engine interface that connects to Reddit data through a Python backend.
+A powerful AI-driven research tool that analyzes Reddit data to provide comprehensive insights. The system uses a React frontend with a Flask backend powered by intelligent research agents.
 
 ## Project Structure
 
 ```
-reddit-oracle-search/
+reddit-research-engine/
 ├── src/
 │   ├── pages/
 │   │   └── Index.tsx          # Main search interface
 │   ├── services/
 │   │   └── searchService.ts   # Backend communication service
 │   └── ...                    # Other React components and utilities
-├── streamlit_backend/         # (Create this for your Python backend)
-│   └── app.py                 # Your Streamlit app
-└── README.md
+├── backend/
+│   ├── app.py                 # Flask API server
+│   ├── research_manager.py    # Orchestrates the research process
+│   ├── planner_agent.py       # Plans search queries
+│   ├── search_agent.py        # Performs Reddit searches
+│   ├── writer_agent.py        # Generates final reports
+│   ├── requirements.txt       # Python dependencies
+│   └── README.md              # Backend-specific documentation
+└── README.md                  # This file
 ```
 
 ## Features
 
-- **Dark Theme**: Clean, minimal dark interface
-- **Responsive Design**: Works on desktop and mobile
-- **Modular Architecture**: Easy to update and extend
-- **Error Handling**: User-friendly error messages
-- **Loading States**: Visual feedback during searches
+- **AI-Powered Research**: Uses multiple specialized agents for comprehensive analysis
+- **Real-time Streaming**: Live progress updates during research
+- **Dark Theme**: Clean, minimal interface optimized for readability
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Error Handling**: Robust error handling with user-friendly messages
+- **Health Monitoring**: Backend connectivity status indicators
 
-## Frontend Setup (React)
+## Quick Start
 
 ### Prerequisites
 - Node.js (v16 or higher)
-- npm or yarn
+- Python 3.8 or higher
+- pip (Python package installer)
 
-### Installation
-
-1. Clone the repository:
+### 1. Clone the Repository
 ```bash
 git clone <your-repo-url>
-cd reddit-oracle-search
+cd reddit-research-engine
 ```
 
-2. Install dependencies:
+### 2. Set Up the Frontend
 ```bash
+# Install dependencies
 npm install
-```
 
-3. Start the development server:
-```bash
+# Start the development server
 npm run dev
 ```
-
 The React app will be available at `http://localhost:5173`
 
-## Backend Setup (Streamlit)
-
-### Prerequisites
-- Python 3.8+
-- pip
-
-### Create Streamlit Backend
-
-1. Create a `streamlit_backend` directory in your project root:
+### 3. Set Up the Backend
 ```bash
-mkdir streamlit_backend
-cd streamlit_backend
-```
+# Navigate to backend directory
+cd backend
 
-2. Create a virtual environment:
-```bash
+# Create virtual environment (recommended)
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Set up environment variables
+# Create a .env file and add your API keys:
+# OPENAI_API_KEY=your_openai_api_key_here
+
+# Start the Flask server
+python app.py
+```
+The backend will be available at `http://localhost:5001`
+
+## How It Works
+
+The research process involves 4 intelligent agents working together:
+
+### 1. Planning Phase
+The **PlannerAgent** analyzes your query and determines the best search strategies for Reddit.
+
+### 2. Search Phase  
+The **SearchAgent** performs targeted searches across Reddit using the planned queries.
+
+### 3. Analysis Phase
+The **WriterAgent** synthesizes all search results into a comprehensive report.
+
+### 4. Delivery Phase
+The final markdown report is streamed back to the frontend in real-time.
+
+## API Endpoints
+
+- `GET /health` - Backend health check
+- `POST /search` - Streaming research endpoint with real-time updates
+- `POST /search_simple` - Non-streaming endpoint for basic testing
+
+### Request Format
+```json
+{
+  "query": "your research question here"
+}
 ```
 
-3. Install Streamlit:
+### Response Format (Streaming)
+```
+data: {"type": "chunk", "data": "Planning searches..."}
+data: {"type": "chunk", "data": "Searching reddit..."}
+data: {"type": "chunk", "data": "# Final Report\n\nYour research results..."}
+```
+
+## Configuration
+
+### Environment Variables
+Create a `.env` file in the backend directory:
 ```bash
-pip install streamlit
+OPENAI_API_KEY=your_openai_api_key_here
+# Add other API keys as needed
 ```
 
-4. Create `app.py` with your search logic:
-```python
-import streamlit as st
-import json
-from datetime import datetime
-
-def search_reddit(query):
-    """
-    Placeholder function for Reddit search.
-    Replace this with your actual Reddit search implementation.
-    """
-    # Current placeholder implementation
-    return "search result shown"
-
-def main():
-    st.set_page_config(
-        page_title="Reddit Research Engine API",
-        page_icon="🔍",
-        layout="wide"
-    )
-    
-    # API endpoint for the React frontend
-    if st.experimental_get_query_params().get("api"):
-        query = st.experimental_get_query_params().get("query", [""])[0]
-        if query:
-            result = search_reddit(query)
-            response = {
-                "query": query,
-                "result": result,
-                "timestamp": datetime.now().isoformat()
-            }
-            st.json(response)
-        else:
-            st.error("No query provided")
-    else:
-        # Regular Streamlit interface (optional)
-        st.title("Reddit Research Engine")
-        st.subheader("Ask the internet's underground brain trust.")
-        
-        query = st.text_input("Enter your search query:")
-        if st.button("Search") and query:
-            with st.spinner("Searching..."):
-                result = search_reddit(query)
-                st.success("Search completed!")
-                st.write("**Results:**")
-                st.write(result)
-
-if __name__ == "__main__":
-    main()
-```
-
-5. Run the Streamlit app:
-```bash
-streamlit run app.py
-```
-
-The Streamlit app will be available at `http://localhost:8501`
-
-## Connecting Frontend to Backend
-
-### Option 1: Direct Integration (Current Setup)
-The React app currently uses a placeholder service. To connect to your Streamlit backend:
-
-1. Update the `searchService.ts` file to uncomment the actual API call code
-2. Set the environment variable `REACT_APP_BACKEND_URL=http://localhost:8501`
-3. Modify your Streamlit app to handle API requests properly
-
-### Option 2: Using Streamlit as API
-Create API endpoints in your Streamlit app that return JSON responses for the React frontend to consume.
-
-### Option 3: Full Streamlit App
-If you prefer to use Streamlit for the entire interface, you can recreate the dark theme styling using Streamlit's theming capabilities.
-
-## Customization
-
-### Updating the Search Logic
-1. Replace the placeholder function in `streamlit_backend/app.py` with your Reddit search implementation
-2. The `searchService.ts` file is already structured to handle the API communication
-
-### Styling Changes
-- Colors and spacing can be modified in `src/pages/Index.tsx`
-- The design uses Tailwind CSS classes for easy customization
-- Dark theme colors: `bg-gray-900`, `text-white`, `bg-gray-800`, etc.
-
-### Adding Features
-- Search history
-- Advanced search filters
-- Result pagination
-- Export functionality
-
-## Environment Variables
-
+### Frontend Configuration
 Create a `.env` file in the root directory:
-```
-REACT_APP_BACKEND_URL=http://localhost:8501
-```
-
-## Deployment
-
-### Frontend (React)
 ```bash
-npm run build
-```
-
-### Backend (Streamlit)
-```bash
-streamlit run streamlit_backend/app.py --server.port 8501
+REACT_APP_BACKEND_URL=http://localhost:5001
 ```
 
 ## Technologies Used
 
-- **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend**: Python, Streamlit
-- **Icons**: Lucide React
-- **Styling**: Dark theme with clean, minimal design
+### Frontend
+- **React 18** with TypeScript
+- **Tailwind CSS** for styling
+- **shadcn/ui** component library
+- **Lucide React** for icons
+- **React Markdown** for report rendering
 
-## Next Steps
+### Backend
+- **Flask** web framework
+- **AI Agents** library for intelligent research
+- **asyncio** for concurrent processing
+- **CORS** for cross-origin requests
 
-1. Implement your Reddit search model in the Streamlit backend
-2. Update the API integration in `searchService.ts`
-3. Add any additional features you need
-4. Deploy both frontend and backend to your preferred hosting platforms
+## Development
+
+### Adding New Features
+- **Frontend**: Add components in `src/components/` or pages in `src/pages/`
+- **Backend**: Modify agents in respective files or update the research flow in `research_manager.py`
+
+### Customizing Research Agents
+Each agent can be customized by editing their respective files:
+- `planner_agent.py` - Modify search planning logic
+- `search_agent.py` - Update Reddit search strategies  
+- `writer_agent.py` - Customize report generation
+
+## Troubleshooting
+
+### Backend Issues
+- Ensure Python 3.8+ is installed
+- Verify virtual environment is activated
+- Check that all dependencies are installed: `pip list`
+- Confirm API keys are set in `.env` file
+
+### Frontend Issues
+- Verify Node.js 16+ is installed
+- Clear browser cache and reload
+- Check browser console for errors
+- Ensure backend is running on port 5001
+
+### Connection Issues
+- Verify Flask server is running on `http://localhost:5001`
+- Check firewall settings
+- Ensure CORS is properly configured
+
+## Deployment
+
+### Frontend
+```bash
+npm run build
+# Deploy the `dist` folder to your hosting platform
+```
+
+### Backend
+```bash
+# For production, consider using gunicorn
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5001 app:app
+```
 
 ## Contributing
 
-This project is designed to be modular and easy to extend. Feel free to add features, improve the UI, or enhance the search functionality.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is open source and available under the MIT License.
