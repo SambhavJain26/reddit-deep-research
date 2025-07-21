@@ -235,7 +235,3 @@ The project uses `pyproject.toml` for Python dependency management with uv. Key 
 4. Make your changes
 5. Test thoroughly
 6. Submit a pull request
-
-## License
-
-This project is open source and available under the MIT License.
