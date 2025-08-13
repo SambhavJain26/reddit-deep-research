@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, AlertCircle } from "lucide-react";
-import { searchService } from "@/services/api/searchService";
+import { searchService } from "@/services/searchService";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from 'react-markdown';
 
@@ -118,7 +118,7 @@ const Index = () => {
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
             <p className="text-sm text-red-700">
-              Backend is not available. Please start the Flask server: <code>cd backend && uv run app.py</code>
+              Backend is not available. Please start the Flask server: <code>cd backend && python app.py</code>
             </p>
           </div>
         </div>

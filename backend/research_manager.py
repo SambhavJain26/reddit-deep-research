@@ -1,7 +1,7 @@
-from agents.agent_base import Runner, trace, gen_trace_id
-from agents.search_agent import search_agent
-from agents.planner_agent import planner_agent, WebSearchItem, WebSearchPlan
-from agents.writer_agent import writer_agent, ReportData
+from agent_base import Runner, trace, gen_trace_id
+from search_agent import search_agent
+from planner_agent import planner_agent, WebSearchItem, WebSearchPlan
+from writer_agent import writer_agent, ReportData
 import asyncio
 
 class ResearchManager:
