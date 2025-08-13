@@ -1,4 +1,4 @@
-from agent_base import Agent, WebSearchTool, ModelSettings
+from .agent_base import Agent, WebSearchTool, ModelSettings
 
 # Optimized prompt - shorter, more direct
 INSTRUCTIONS = """Search Reddit and summarize findings in 2-3 paragraphs (under 250 words).

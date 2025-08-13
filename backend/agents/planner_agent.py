@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from agent_base import Agent
+from .agent_base import Agent
 
 HOW_MANY_SEARCHES = 3
 

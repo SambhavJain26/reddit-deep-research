@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from agent_base import Agent
+from .agent_base import Agent
 
 # Optimized prompt - much shorter while maintaining quality
 INSTRUCTIONS = """Write a research report from the provided findings.

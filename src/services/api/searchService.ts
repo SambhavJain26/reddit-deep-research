@@ -1,4 +1,3 @@
-
 // Search service to communicate with Flask backend
 export interface SearchResult {
   query: string;
@@ -7,7 +6,7 @@ export interface SearchResult {
 }
 
 export interface StreamingUpdate {
-  type: 'chunk' | 'error';
+  type: 'chunk' | 'error' | 'update' | 'complete';
   data?: string;
   message?: string;
 }
@@ -31,14 +30,15 @@ class SearchService {
       });
 
       if (!response.ok) {
-        throw new Error(`Search failed: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      return data.result;
+      return data.report || data.result || 'No results found';
     } catch (error) {
       console.error('Search error:', error);
-      throw new Error('Failed to perform search. Please try again.');
+      throw error;
     }
   }
 
@@ -53,16 +53,15 @@ class SearchService {
       });
 
       if (!response.ok) {
-        throw new Error(`Search failed: ${response.statusText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
       if (!reader) {
         throw new Error('No response body');
       }
-
-      const decoder = new TextDecoder();
-      let buffer = '';
 
       try {
         while (true) {
@@ -70,27 +69,26 @@ class SearchService {
           
           if (done) break;
           
-          buffer += decoder.decode(value, { stream: true });
-          
-          // Process complete lines
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ''; // Keep incomplete line in buffer
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
           
           for (const line of lines) {
-            if (line.trim() === '') continue;
-            
             if (line.startsWith('data: ')) {
               try {
                 const jsonStr = line.slice(6); // Remove 'data: ' prefix
-                const parsed: StreamingUpdate = JSON.parse(jsonStr);
-                
-                if (parsed.type === 'chunk' && parsed.data) {
-                  yield parsed.data;
-                } else if (parsed.type === 'error') {
-                  throw new Error(parsed.message || 'Unknown error occurred');
+                if (jsonStr.trim()) {
+                  const parsed = JSON.parse(jsonStr) as StreamingUpdate;
+                  
+                  if (parsed.type === 'update' && parsed.message) {
+                    yield parsed.message;
+                  } else if (parsed.type === 'complete') {
+                    return;
+                  } else if (parsed.type === 'error') {
+                    throw new Error(parsed.message || 'Unknown error');
+                  }
                 }
               } catch (parseError) {
-                console.warn('Failed to parse streaming data:', parseError);
+                console.warn('Failed to parse chunk:', line, parseError);
               }
             }
           }
@@ -100,7 +98,7 @@ class SearchService {
       }
     } catch (error) {
       console.error('Streaming search error:', error);
-      throw new Error('Failed to perform streaming search. Please try again.');
+      throw error;
     }
   }
 
