@@ -1,5 +1,4 @@
-
-from agents import Runner, trace, gen_trace_id
+from agent_base import Runner, trace, gen_trace_id
 from search_agent import search_agent
 from planner_agent import planner_agent, WebSearchItem, WebSearchPlan
 from writer_agent import writer_agent, ReportData
@@ -8,72 +7,76 @@ import asyncio
 class ResearchManager:
 
     async def run(self, query: str):
-        """ Run the deep research process, yielding the status updates and the final report"""
+        """Run the research process, yielding status updates and final report"""
         trace_id = gen_trace_id()
-        with trace("Research trace", trace_id=trace_id):
-            print("Starting research...")
-            yield "Starting research..."
+        with trace("Research process", trace_id=trace_id):
+            yield "🔍 Starting research..."
             
             # Step 1: Planning
-            print("Planning searches...")
-            yield "Planning searches..."
-            search_plan = await self.plan_searches(query)
-            yield "Searches planned, starting to search..."
+            yield "📋 Planning searches..."
+            try:
+                search_plan = await self.plan_searches(query)
+                yield f"✅ Planned {len(search_plan.searches)} searches"
+            except Exception as e:
+                yield f"❌ Planning failed: {str(e)}"
+                return
             
-            # Step 2: Searching with progress updates
-            print("Searching...")
-            yield "Searching..."
+            # Step 2: Execute searches
+            yield "🔎 Executing searches..."
             search_results = []
-            num_completed = 0
+            completed = 0
+            
+            # Run searches concurrently
             tasks = [asyncio.create_task(self.search(item)) for item in search_plan.searches]
             
             for task in asyncio.as_completed(tasks):
-                result = await task
-                if result is not None:
-                    search_results.append(result)
-                num_completed += 1
-                print(f"Searching... {num_completed}/{len(tasks)} completed")
-                yield f"Searching... {num_completed}/{len(tasks)} completed"
+                try:
+                    result = await task
+                    if result:
+                        search_results.append(result)
+                    completed += 1
+                    yield f"🔎 Search progress: {completed}/{len(tasks)}"
+                except Exception as e:
+                    completed += 1
+                    yield f"⚠️ Search {completed} failed: {str(e)}"
             
-            print("Finished searching")
-            yield "Finished searching"
+            if not search_results:
+                yield "❌ No search results found"
+                return
             
-            # Step 3: Writing report
-            print("Thinking about report...")
-            yield "Thinking about report..."
-            report = await self.write_report(query, search_results)
-            print("Finished writing report")
-            yield "Finished writing report"
+            yield f"✅ Completed {len(search_results)} searches"
             
-            # Step 4: Final result
-            yield report.markdown_report
+            # Step 3: Generate report
+            yield "📝 Writing report..."
+            try:
+                report = await self.write_report(query, search_results)
+                yield "✅ Report complete"
+                yield report.markdown_report
+            except Exception as e:
+                yield f"❌ Report generation failed: {str(e)}"
 
     async def plan_searches(self, query: str) -> WebSearchPlan:
-        """ Plan the searches to perform for the query """
-        result = await Runner.run(
-            planner_agent,
-            f"Query: {query}",
-        )
-        print(f"Will perform {len(result.final_output.searches)} searches")
+        """Plan Reddit searches for the query"""
+        result = await Runner.run(planner_agent, f"Query: {query}")
         return result.final_output_as(WebSearchPlan)
 
     async def search(self, item: WebSearchItem) -> str | None:
-        """ Perform a search for the query """
-        input = f"Search term: {item.query}\nReason for searching: {item.reason}"
+        """Execute a single search"""
         try:
-            result = await Runner.run(
-                search_agent,
-                input,
-            )
+            input_text = f"Search: {item.query}\nFocus: {item.reason}"
+            result = await Runner.run(search_agent, input_text)
             return str(result.final_output)
-        except Exception:
+        except Exception as e:
+            print(f"Search failed for '{item.query}': {e}")
             return None
 
     async def write_report(self, query: str, search_results: list[str]) -> ReportData:
-        """ Write the report for the query """
-        input = f"Original query: {query}\nSummarized search results: {search_results}"
-        result = await Runner.run(
-            writer_agent,
-            input,
-        )
+        """Generate final report from search results"""
+        # Limit input size to control costs
+        combined_results = "\n\n---\n\n".join(search_results)
+        if len(combined_results) > 3000:  # Truncate if too long
+            combined_results = combined_results[:3000] + "...\n[Results truncated]"
+        
+        input_text = f"Query: {query}\n\nFindings:\n{combined_results}"
+        result = await Runner.run(writer_agent, input_text)
         return result.final_output_as(ReportData)

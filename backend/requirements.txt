@@ -1,7 +1,7 @@
-
 flask==2.3.3
 flask-cors==4.0.0
+openai==1.54.3
+pydantic==2.7.4
+tavily-python==0.3.3
 python-dotenv==1.0.0
-pydantic==2.5.0
-agents==0.1.0
 asyncio
