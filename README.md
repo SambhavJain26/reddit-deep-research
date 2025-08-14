@@ -80,7 +80,7 @@ Create a `.env` file in the project root:
 ```bash
 # Required API keys
 OPENAI_API_KEY=your_openai_api_key_here
-# Add other API keys as needed
+TAVILY_API_KEY=your_tavily_api_key_here
 ```
 
 ### 6. Start the Backend
@@ -132,7 +132,7 @@ data: {"type": "chunk", "data": "# Final Report\n\nYour research results..."}
 Create a `.env` file in the project root:
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
-# Add other API keys as needed
+TAVILY_API_KEY=your_tavily_api_key_here
 ```
 
 ### Frontend Configuration

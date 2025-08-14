@@ -61,17 +61,17 @@ const Index = () => {
     setTimeout(() => {
       setActiveStep(1);
       setCurrentStatus("Searching reddit...");
-    }, 2500);
+    }, 3500);
     
     setTimeout(() => {
       setActiveStep(2);
       setCurrentStatus("Writing report...");
-    }, 4500);
+    }, 6500);
     
     setTimeout(() => {
       setActiveStep(3);
       setCurrentStatus("Finalizing...");
-    }, 6500);
+    }, 9500);
     
     try {
       // Use streaming search for real-time updates
@@ -106,7 +106,7 @@ const Index = () => {
     } finally {
       setTimeout(() => {
         setIsLoading(false);
-      }, 7000); // Complete after all animations
+      }, 10000); // Complete after all animations
     }
   };
 
@@ -118,7 +118,7 @@ const Index = () => {
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
             <p className="text-sm text-red-700">
-              Backend is not available. Please start the Flask server: <code>cd backend && python app.py</code>
+              Backend is not available. Please start the Flask server: <code>uv run app.py</code>
             </p>
           </div>
         </div>
