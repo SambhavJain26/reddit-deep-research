@@ -7,8 +7,7 @@ export interface SearchResult {
 }
 
 export interface StreamingUpdate {
-  type: 'chunk' | 'error';
-  data?: string;
+  type: 'update' | 'complete' | 'error';
   message?: string;
 }
 
@@ -35,7 +34,7 @@ class SearchService {
       }
 
       const data = await response.json();
-      return data.result;
+      return data.report;
     } catch (error) {
       console.error('Search error:', error);
       throw new Error('Failed to perform search. Please try again.');
@@ -84,8 +83,10 @@ class SearchService {
                 const jsonStr = line.slice(6); // Remove 'data: ' prefix
                 const parsed: StreamingUpdate = JSON.parse(jsonStr);
                 
-                if (parsed.type === 'chunk' && parsed.data) {
-                  yield parsed.data;
+                if (parsed.type === 'update' && parsed.message) {
+                  yield parsed.message;
+                } else if (parsed.type === 'complete') {
+                  return; // End of stream
                 } else if (parsed.type === 'error') {
                   throw new Error(parsed.message || 'Unknown error occurred');
                 }
