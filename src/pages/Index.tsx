@@ -61,17 +61,17 @@ const Index = () => {
     setTimeout(() => {
       setActiveStep(1);
       setCurrentStatus("Searching reddit...");
-    }, 3500);
+    }, 4000);
     
     setTimeout(() => {
       setActiveStep(2);
       setCurrentStatus("Writing report...");
-    }, 6500);
+    }, 7000);
     
     setTimeout(() => {
       setActiveStep(3);
       setCurrentStatus("Finalizing...");
-    }, 9500);
+    }, 10000);
     
     try {
       // Use streaming search for real-time updates
@@ -106,7 +106,7 @@ const Index = () => {
     } finally {
       setTimeout(() => {
         setIsLoading(false);
-      }, 10000); // Complete after all animations
+      }, 10500); // Complete after all animations
     }
   };
 
