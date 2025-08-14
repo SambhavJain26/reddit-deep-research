@@ -43,8 +43,8 @@ class WebSearchTool:
         self.search_context_size = search_context_size
         self.client = TavilyClient(api_key=os.getenv('TAVILY_API_KEY'))
     
-    async def search(self, query: str, max_results: int = 5) -> str:
-        """Perform web search using Tavily API"""
+    async def search(self, query: str, max_results: int = 5) -> dict:
+        """Perform web search using Tavily API and return structured results"""
         try:
             response = self.client.search(
                 query=query,
@@ -54,21 +54,43 @@ class WebSearchTool:
                 include_raw_content=False
             )
             
-            # Format results concisely
-            results = []
+            # Extract sources for referencing
+            sources = []
+            content_parts = []
+            
             if response.get('answer'):
-                results.append(f"Summary: {response['answer']}")
+                content_parts.append(f"Summary: {response['answer']}")
             
-            for result in response.get('results', [])[:max_results]:
+            for i, result in enumerate(response.get('results', [])[:max_results], 1):
                 title = result.get('title', 'No title')
-                content = result.get('content', '')[:200] + "..." if len(result.get('content', '')) > 200 else result.get('content', '')
+                content = result.get('content', '')
                 url = result.get('url', '')
-                results.append(f"• {title}\n  {content}\n  {url}")
+                
+                # Truncate content
+                if len(content) > 200:
+                    content = content[:200] + "..."
+                
+                # Add to sources list
+                sources.append({
+                    'id': i,
+                    'title': title,
+                    'url': url
+                })
+                
+                # Add content with reference number
+                content_parts.append(f"• {title} [{i}]\n  {content}")
             
-            return "\n\n".join(results)
+            return {
+                'content': "\n\n".join(content_parts),
+                'sources': sources
+            }
+            
         except Exception as e:
             logger.error(f"Search error: {e}")
-            return f"Search failed: {str(e)}"
+            return {
+                'content': f"Search failed: {str(e)}",
+                'sources': []
+            }
 
 class Agent:
     def __init__(self, name: str, instructions: str, model: str = "gpt-4o-mini", 
@@ -134,6 +156,7 @@ class Agent:
         
         # Handle function calls
         final_content = ""
+        sources = []
         message = response.choices[0].message
         
         if message.function_call:
@@ -144,10 +167,17 @@ class Agent:
             if function_name in available_functions:
                 function_result = await available_functions[function_name](**function_args)
                 
+                # Handle structured search results
+                if isinstance(function_result, dict) and 'sources' in function_result:
+                    sources = function_result['sources']
+                    function_content = function_result['content']
+                else:
+                    function_content = str(function_result)
+                
                 # Add function result and get final response
                 messages.extend([
                     {"role": "assistant", "content": None, "function_call": message.function_call},
-                    {"role": "function", "name": function_name, "content": str(function_result)}
+                    {"role": "function", "name": function_name, "content": function_content}
                 ])
                 
                 final_response = await self.client.chat.completions.create(
@@ -159,12 +189,13 @@ class Agent:
         else:
             final_content = message.content
         
-        return RunResult(final_content, self.output_type)
+        return RunResult(final_content, self.output_type, sources)
 
 class RunResult:
-    def __init__(self, content: str, output_type: Type[T] = None):
+    def __init__(self, content: str, output_type: Type[T] = None, sources: list = None):
         self.content = content
         self.output_type = output_type
+        self.sources = sources or []
         self._parsed_output = None
     
     @property

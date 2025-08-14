@@ -8,11 +8,13 @@ Structure:
 1. Brief overview
 2. Key findings (2-3 main points)
 3. Notable insights
+4. References section with numbered sources
 
 Requirements:
 - Markdown format
 - Under 400 words
-- No references
+- Include reference numbers [1], [2] in text
+- Add "## References" section at end
 - Concise, factual tone
 
 Output JSON with report and summary."""

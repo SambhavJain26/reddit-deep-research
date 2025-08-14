@@ -5,10 +5,11 @@ INSTRUCTIONS = """Search Reddit and summarize findings in 2-3 paragraphs (under 
 
 Focus on:
 - Key insights and common themes
-- Specific examples/experiences mentioned
+- Specific examples/experiences mentioned  
 - Different perspectives if any
 
-Be concise. Include relevant Reddit post URLs."""
+Use reference numbers [1], [2] etc. when mentioning specific sources.
+Be concise but cite relevant posts."""
 
 search_agent = Agent(
     name="SearchAgent",
