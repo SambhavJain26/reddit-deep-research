@@ -222,7 +222,7 @@ data: {"type": "complete"}
 | Decision | Alternative Considered | Rationale |
 | :--- | :--- | :--- |
 | **Custom Agent Orchestrator** | Heavy frameworks (LangChain / CrewAI / AutoGen) | Lightweight custom runner reduces package dependencies by 80%, executes with sub-millisecond dispatch overhead, and gives complete determinism over prompt schemas. |
-| **GPT-4o-mini Execution** | GPT-4o / Claude 3.5 Sonnet | `gpt-4o-mini` delivers sub-second planning and synthesis latency at an order of magnitude lower token cost, meeting the interactive needs of real-time search. |
+| **GPT-4o-mini Execution** | Unquantized Frontier LLMs (e.g. GPT-4o) | `gpt-4o-mini` delivers sub-second planning and synthesis latency at an order of magnitude lower token cost, meeting the interactive needs of real-time search. |
 | **Tavily Search Integration** | Direct Reddit OAuth API (`PRAW`) | Avoids aggressive Reddit rate limits, API paywalls, and IP blocks. Tavily extracts pre-ranked, high-relevance thread content and metadata without session expiration risks. |
 | **Server-Sent Events (SSE)** | WebSockets / Polling | Unidirectional HTTP SSE eliminates WebSocket connection negotiation overhead while delivering instant incremental progress feedback. |
 
