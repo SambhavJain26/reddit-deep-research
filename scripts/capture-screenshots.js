@@ -39,21 +39,44 @@ async function run() {
       await searchBtn.click();
     }
 
-    // Wait 2 seconds for stepper animations
-    await new Promise(r => setTimeout(r, 2000));
+    // Wait 2.5 seconds for stepper animations
+    await new Promise(r => setTimeout(r, 2500));
     console.log('[Capture] Capturing Active Research Stepper...');
     await page.screenshot({ path: path.join(OUTPUT_DIR, '02-active-research-stepper.png') });
 
     // 3. Wait for final research report to render
-    console.log('[Capture] Waiting for report generation...');
+    console.log('[Capture] Waiting for report generation (up to 90s)...');
     try {
-      await page.waitForSelector('.prose', { timeout: 45000 });
+      await page.waitForSelector('.prose', { timeout: 90000 });
       await new Promise(r => setTimeout(r, 2000));
-      console.log('[Capture] Capturing Research Report Results...');
-      await page.screenshot({ path: path.join(OUTPUT_DIR, '03-research-report-results.png') });
+
+      // 3a. Capture the complete research report card (top-to-bottom containing full text + references)
+      console.log('[Capture] Capturing Full Research Report Card...');
+      const reportCard = await page.$('.animate-fade-in');
+      if (reportCard) {
+        await reportCard.screenshot({ path: path.join(OUTPUT_DIR, '03-research-report-results.png') });
+      } else {
+        await page.screenshot({ path: path.join(OUTPUT_DIR, '03-research-report-results.png'), fullPage: true });
+      }
+
+      // 3b. Scroll directly to the References section at the bottom and capture focused view
+      console.log('[Capture] Scrolling to bottom References section...');
+      await page.evaluate(() => {
+        const headings = Array.from(document.querySelectorAll('h2, h3, p, strong'));
+        const refElement = headings.find(el => el.textContent.includes('References'));
+        if (refElement) {
+          refElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+        } else {
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      });
+      await new Promise(r => setTimeout(r, 1000));
+
+      console.log('[Capture] Capturing Dedicated References Section...');
+      await page.screenshot({ path: path.join(OUTPUT_DIR, '04-research-report-references.png') });
+
     } catch (err) {
-      console.warn('[Capture] Timeout waiting for report, taking fallback report capture');
-      await page.screenshot({ path: path.join(OUTPUT_DIR, '03-research-report-results.png') });
+      console.warn('[Capture] Timeout waiting for report:', err.message);
     }
 
     // 4. Mobile responsive view
@@ -61,7 +84,7 @@ async function run() {
     await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, isMobile: true });
     await page.goto(BASE_URL, { waitUntil: 'networkidle0' });
     await new Promise(r => setTimeout(r, 1000));
-    await page.screenshot({ path: path.join(OUTPUT_DIR, '04-mobile-responsive-view.png') });
+    await page.screenshot({ path: path.join(OUTPUT_DIR, '05-mobile-responsive-view.png') });
 
     console.log('[Capture] All screenshots captured successfully in docs/screenshots/');
   } finally {

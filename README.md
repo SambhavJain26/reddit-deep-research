@@ -15,13 +15,17 @@
 
 ## Live System Interface
 
-| Primary Search & Stepper Animation | Synthesized Markdown Report with References |
+| Primary Search Interface | Multi-Agent Stepper in Flight |
 | :---: | :---: |
-| ![Initial Search Interface](docs/screenshots/01-initial-search-interface.png) | ![Research Report Results](docs/screenshots/03-research-report-results.png) |
+| ![Initial Search Interface](docs/screenshots/01-initial-search-interface.png) | ![Active Stepper](docs/screenshots/02-active-research-stepper.png) |
 
-| Multi-Agent Stepper in Flight | Mobile Responsive Layout |
+| Synthesized Markdown Report | Verified Reddit References & Source Citations |
 | :---: | :---: |
-| ![Active Stepper](docs/screenshots/02-active-research-stepper.png) | ![Mobile Responsive View](docs/screenshots/04-mobile-responsive-view.png) |
+| ![Research Report Results](docs/screenshots/03-research-report-results.png) | ![Verified References Section](docs/screenshots/04-research-report-references.png) |
+
+| Mobile Responsive Viewport |
+| :---: |
+| ![Mobile Responsive View](docs/screenshots/05-mobile-responsive-view.png) |
 
 ---
 

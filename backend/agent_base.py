@@ -108,9 +108,14 @@ class Agent:
         self.tools = tools or []
         self.output_type = output_type
         self.model_settings = model_settings or ModelSettings()
-        self.client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-    
     async def run(self, user_input: str) -> 'RunResult':
+        client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        try:
+            return await self._execute_run(client, user_input)
+        finally:
+            await client.close()
+
+    async def _execute_run(self, client: AsyncOpenAI, user_input: str) -> 'RunResult':
         """Run the agent with user input"""
         messages = [
             {"role": "system", "content": self.instructions},
@@ -158,7 +163,7 @@ class Agent:
             schema_instruction = f"\n\nRespond with valid JSON matching this schema: {self.output_type.model_json_schema()}"
             kwargs["messages"][0]["content"] += schema_instruction
         
-        response = await self.client.chat.completions.create(**kwargs)
+        response = await client.chat.completions.create(**kwargs)
         
         # Handle function calls
         final_content = ""
@@ -186,7 +191,7 @@ class Agent:
                     {"role": "function", "name": function_name, "content": function_content}
                 ])
                 
-                final_response = await self.client.chat.completions.create(
+                final_response = await client.chat.completions.create(
                     model=self.model,
                     messages=messages,
                     temperature=self.model_settings.temperature

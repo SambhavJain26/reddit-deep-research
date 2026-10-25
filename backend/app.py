@@ -15,6 +15,8 @@ if root_env.exists():
 else:
     load_dotenv()
 
+import queue
+import threading
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import json
@@ -47,42 +49,46 @@ def search():
             return jsonify({"error": "Query too long (max 500 characters)"}), 400
 
         def generate():
-            try:
-                # Create event loop for this thread
+            q = queue.Queue()
+            
+            def run_worker():
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                
-                async def run_research():
-                    research_manager = ResearchManager()
-                    async for chunk in research_manager.run(query):
-                        yield chunk
-                
-                # Execute async generator
-                async def async_gen():
-                    async for chunk in run_research():
-                        yield chunk
-                
-                gen = async_gen()
-                
                 try:
-                    while True:
-                        try:
-                            chunk = loop.run_until_complete(gen.__anext__())
-                            # Send formatted chunk
-                            yield f"data: {json.dumps({'type': 'update', 'message': chunk})}\n\n"
-                        except StopAsyncIteration:
-                            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
-                            break
+                    async def execute():
+                        rm = ResearchManager()
+                        async for chunk in rm.run(query):
+                            q.put(('update', chunk))
+                    loop.run_until_complete(execute())
+                    q.put(('complete', None))
                 except Exception as e:
-                    logger.error(f"Research error: {e}")
-                    yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+                    logger.error(f"Research worker error: {e}")
+                    q.put(('error', str(e)))
                 finally:
+                    try:
+                        pending = asyncio.all_tasks(loop)
+                        for task in pending:
+                            task.cancel()
+                        if pending:
+                            loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                        loop.run_until_complete(loop.shutdown_asyncgens())
+                    except Exception:
+                        pass
                     loop.close()
-                    
-            except Exception as e:
-                logger.error(f"Generation error: {e}")
-                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
-        
+            
+            worker_thread = threading.Thread(target=run_worker, daemon=True)
+            worker_thread.start()
+            
+            while True:
+                msg_type, payload = q.get()
+                if msg_type == 'update':
+                    yield 'data: ' + json.dumps({'type': 'update', 'message': payload}) + '\n\n'
+                elif msg_type == 'complete':
+                    yield 'data: ' + json.dumps({'type': 'complete'}) + '\n\n'
+                    break
+                elif msg_type == 'error':
+                    yield 'data: ' + json.dumps({'type': 'error', 'message': payload}) + '\n\n'
+                    break
         return Response(
             generate(),
             mimetype='text/plain',

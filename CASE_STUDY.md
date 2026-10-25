@@ -33,13 +33,17 @@ Reddit Deep Research was built to address the critical friction of extracting au
 ![Active Research Stepper](docs/screenshots/02-active-research-stepper.png)
 *Figure 2: Animated multi-agent progress stepper tracking the live state transition through query planning, concurrent thread crawling, report writing, and finalization.*
 
-### 3. Synthesized Research Report with Inline Citations
+### 3. Synthesized Research Report
 ![Research Report Results](docs/screenshots/03-research-report-results.png)
-*Figure 3: Comprehensive markdown research report presenting executive summaries, categorized community insights, consensus trade-offs, and fully linked reference bibliography.*
+*Figure 3: Comprehensive markdown research report presenting executive summaries, categorized community insights, and consensus trade-offs.*
 
-### 4. Mobile Responsive View
-![Mobile Responsive View](docs/screenshots/04-mobile-responsive-view.png)
-*Figure 4: Fully adaptive layout engineered for seamless execution across mobile viewports and tablets.*
+### 4. Verified Reddit References & Source Citations
+![Verified References Section](docs/screenshots/04-research-report-references.png)
+*Figure 4: Dedicated references bibliography at the bottom of the research report displaying authentic numbered Reddit discussion links, thread titles, and permanent source URLs.*
+
+### 5. Mobile Responsive View
+![Mobile Responsive View](docs/screenshots/05-mobile-responsive-view.png)
+*Figure 5: Fully adaptive layout engineered for seamless execution across mobile viewports and tablets.*
 
 ---
 

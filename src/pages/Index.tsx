@@ -80,10 +80,11 @@ const Index = () => {
       for await (const chunk of streamingGenerator) {
         console.log('Received chunk:', chunk);
         
-        if (chunk.includes("#") && chunk.length > 100) {
+        if ((chunk.includes("#") && chunk.length > 80) || chunk.includes("## References") || chunk.length > 250) {
           // This is the final markdown report
           setResults(chunk);
           setCurrentStatus("Research completed!");
+          setIsLoading(false);
           break;
         }
       }
@@ -211,7 +212,7 @@ const Index = () => {
                   <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
                   Research Report
                 </h2>
-                <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+                <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none prose-a:text-orange-600 prose-a:font-medium hover:prose-a:underline prose-headings:text-gray-900">
                   <ReactMarkdown>{results}</ReactMarkdown>
                 </div>
               </CardContent>
