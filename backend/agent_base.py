@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import asyncio
 import logging
@@ -67,24 +68,51 @@ class WebSearchTool:
             if response.get('answer'):
                 content_parts.append(f"Summary: {response['answer']}")
             
-            for i, result in enumerate(response.get('results', [])[:max_results], 1):
-                title = result.get('title', 'No title')
-                content = result.get('content', '')
-                url = result.get('url', '')
+            junk_patterns = [
+                'prove your humanity',
+                'captcha',
+                'just a moment',
+                'access denied',
+                'blocked',
+                'dive into anything',
+                'sign in to reddit',
+                'log in to reddit',
+                'page not found',
+                '404 not found'
+            ]
+
+            valid_results = []
+            for r in response.get('results', []):
+                t = (r.get('title') or '').strip()
+                u = (r.get('url') or '').strip()
+                t_lower = t.lower()
+                if any(p in t_lower for p in junk_patterns):
+                    continue
+                if '/login' in u or '/captcha' in u:
+                    continue
+                if len(t) < 4 or not u:
+                    continue
+                valid_results.append(r)
+
+            for i, result in enumerate(valid_results[:max_results], 1):
+                title = result.get('title', 'Reddit Discussion').strip()
+                content = result.get('content', '').strip()
+                url = result.get('url', '').strip()
                 
-                # Truncate content
-                if len(content) > 200:
-                    content = content[:200] + "..."
+                sub_match = re.search(r'/r/([a-zA-Z0-9_]+)', url)
+                subreddit = f"r/{sub_match.group(1)}" if sub_match else "r/reddit"
+
+                if len(content) > 250:
+                    content = content[:250] + "..."
                 
-                # Add to sources list
                 sources.append({
                     'id': i,
                     'title': title,
-                    'url': url
+                    'url': url,
+                    'subreddit': subreddit
                 })
                 
-                # Add content with reference number
-                content_parts.append(f"• {title} [{i}]\n  {content}")
+                content_parts.append(f"• [{subreddit}] {title} [{i}]\n  {content}")
             
             return {
                 'content': "\n\n".join(content_parts),

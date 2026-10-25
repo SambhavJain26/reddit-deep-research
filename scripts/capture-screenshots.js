@@ -30,9 +30,10 @@ async function run() {
 
     // 2. Type query and initiate search to capture active research stepper
     console.log('[Capture] Typing query and triggering search...');
-    const searchInput = await page.$('input[placeholder*="search query"]');
+    const searchInput = await page.$('input[placeholder*="Ask anything"], input[type="text"]');
     if (searchInput) {
-      await searchInput.type('best productivity apps for remote engineers', { delay: 30 });
+      await searchInput.type('best productivity tools for remote engineers', { delay: 20 });
+      await new Promise(r => setTimeout(r, 300));
     }
     const searchBtn = await page.$('button[type="submit"]');
     if (searchBtn) {
@@ -52,25 +53,24 @@ async function run() {
 
       // 3a. Capture the complete research report card (top-to-bottom containing full text + references)
       console.log('[Capture] Capturing Full Research Report Card...');
-      const reportCard = await page.$('.animate-fade-in');
+      const reportCard = await page.$('#research-report-card');
       if (reportCard) {
         await reportCard.screenshot({ path: path.join(OUTPUT_DIR, '03-research-report-results.png') });
       } else {
         await page.screenshot({ path: path.join(OUTPUT_DIR, '03-research-report-results.png'), fullPage: true });
       }
 
-      // 3b. Scroll directly to the References section at the bottom and capture focused view
-      console.log('[Capture] Scrolling to bottom References section...');
+      // 3b. Scroll directly to the References / Community Sources section and capture focused viewport
+      console.log('[Capture] Scrolling to Community Sources section...');
       await page.evaluate(() => {
-        const headings = Array.from(document.querySelectorAll('h2, h3, p, strong'));
-        const refElement = headings.find(el => el.textContent.includes('References'));
-        if (refElement) {
-          refElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+        const sec = document.getElementById('community-sources-section');
+        if (sec) {
+          sec.scrollIntoView({ behavior: 'instant', block: 'center' });
         } else {
           window.scrollTo(0, document.body.scrollHeight);
         }
       });
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 1200));
 
       console.log('[Capture] Capturing Dedicated References Section...');
       await page.screenshot({ path: path.join(OUTPUT_DIR, '04-research-report-references.png') });

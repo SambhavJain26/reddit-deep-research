@@ -41,10 +41,11 @@ class ResearchManager:
                     result = await task
                     if result:
                         search_results.append(result.content)
-                        # Renumber sources globally
+                        # Deduplicate and renumber sources globally
                         for source in result.sources:
-                            source['global_id'] = len(all_sources) + 1
-                            all_sources.append(source)
+                            if not any(s.get('url') == source.get('url') for s in all_sources):
+                                source['global_id'] = len(all_sources) + 1
+                                all_sources.append(source)
                     completed += 1
                     yield f"🔎 Search progress: {completed}/{len(tasks)}"
                 except Exception as e:
@@ -91,24 +92,30 @@ class ResearchManager:
         if len(combined_results) > 3000:  # Truncate if too long
             combined_results = combined_results[:3000] + "...\n[Results truncated]"
         
-        # Format sources for the AI
+        import re
         sources_text = "\n".join([
-            f"[{src['global_id']}] {src['title']} - {src['url']}" 
+            f"[{src['global_id']}] {src['title']} ({src.get('subreddit', 'r/reddit')}) - {src['url']}" 
             for src in sources
         ])
         
         input_text = f"Query: {query}\n\nFindings:\n{combined_results}\n\nAvailable Sources:\n{sources_text}"
         result = await Runner.run(writer_agent, input_text)
         
-        # Get the report and add sources if not included
         report_data = result.final_output_as(ReportData)
         
-        # Ensure references section is included
-        if "## References" not in report_data.markdown_report and sources:
-            references_section = "\n\n## References\n\n" + "\n".join([
-                f"{src['global_id']}. {src['title']} - {src['url']}"
-                for src in sources
-            ])
-            report_data.markdown_report += references_section
+        # Strip any inconsistent references the agent might have written
+        body_text = re.split(r'\n#{1,3}\s*References|\nReferences\s*:?\s*\n', report_data.markdown_report, flags=re.IGNORECASE)[0].strip()
+        
+        # Build canonical markdown references with active links and subreddit tags
+        if sources:
+            ref_lines = []
+            for src in sources:
+                gid = src.get('global_id', 1)
+                title = src.get('title', 'Reddit Discussion').replace('[', '(').replace(']', ')')
+                url = src.get('url', '')
+                sub = src.get('subreddit', 'r/reddit')
+                ref_lines.append(f"{gid}. [{title}]({url}) - `{sub}`")
+            body_text += "\n\n## References\n\n" + "\n".join(ref_lines)
             
+        report_data.markdown_report = body_text
         return report_data
