@@ -1,0 +1,68 @@
+name: CI Quality & Build Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  frontend-build:
+    name: Frontend TypeScript & Vite Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Execute production build
+        run: npm run build
+
+  backend-verification:
+    name: Backend Python Type & Syntax Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv and dependencies
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv venv
+          uv pip install flask flask-cors openai tavily-python pydantic python-dotenv
+
+      - name: Compile and syntax check Python modules
+        run: |
+          source .venv/bin/activate
+          python -m py_compile backend/app.py backend/agent_base.py backend/planner_agent.py backend/search_agent.py backend/writer_agent.py backend/research_manager.py
+
+  style-hygiene:
+    name: Typography & Style Compliance (Em Dash Ban)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify zero em dashes or en dashes in codebase
+        run: |
+          echo "Checking for banned unicode dashes (U+2014 and U+2013)..."
+          DASH_MATCHES=$(git grep -P '[\x{2014}\x{2013}]' -- '*.md' '*.py' '*.ts' '*.tsx' '*.json' || true)
+          if [ -n "$DASH_MATCHES" ]; then
+            echo "ERROR: Banned em-dash or en-dash detected:"
+            echo "$DASH_MATCHES"
+            exit 1
+          fi
+          echo "Typography verification passed with zero banned dashes."

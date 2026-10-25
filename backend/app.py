@@ -1,3 +1,20 @@
+import sys
+from pathlib import Path
+from dotenv import load_dotenv
+
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
+root_env = Path(__file__).resolve().parent.parent / '.env'
+if root_env.exists():
+    load_dotenv(dotenv_path=root_env)
+else:
+    load_dotenv()
+
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import json

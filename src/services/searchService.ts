@@ -16,7 +16,7 @@ class SearchService {
 
   constructor() {
     // Flask backend URL - update this to match your Flask server
-    this.baseUrl = (typeof process !== 'undefined' && process.env?.REACT_APP_BACKEND_URL) || 'http://localhost:5001';
+    this.baseUrl = (import.meta as any).env?.VITE_API_URL || (typeof process !== 'undefined' && process.env?.REACT_APP_BACKEND_URL) || 'http://localhost:5001';
   }
 
   async search(query: string): Promise<string> {

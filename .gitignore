@@ -29,3 +29,9 @@ dist-ssr
 /.venv
 /uv.lock
 
+
+# Python byte code & caches
+__pycache__/
+*.py[cod]
+*.class
+.pytest_cache/

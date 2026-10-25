@@ -10,8 +10,14 @@ import time
 import uuid
 
 # Load environment variables
+from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
+
+root_env = Path(__file__).resolve().parent.parent / '.env'
+if root_env.exists():
+    load_dotenv(dotenv_path=root_env)
+else:
+    load_dotenv()
 
 T = TypeVar('T', bound=BaseModel)
 
