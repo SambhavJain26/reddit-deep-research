@@ -1,4 +1,4 @@
-# Reddit Deep Research: Autonomous Multi-Agent Consumer Intelligence Engine
+# Reddit Intelligence & Deep Research Agent
 
 [![CI Quality Pipeline](https://github.com/SambhavJain26/reddit-deep-research/actions/workflows/ci.yml/badge.svg)](https://github.com/SambhavJain26/reddit-deep-research/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)

@@ -1,7 +1,7 @@
-# Case Study: Autonomous Multi-Agent Reddit Consumer Intelligence Engine
+# Case Study: Reddit Intelligence & Deep Research Agent
 
 ## Project Hero
-- **Project Title**: Reddit Deep Research
+- **Project Title**: Reddit Intelligence & Deep Research Agent
 - **Subtitle**: Distributed Multi-Agent Web Research System for Real-Time Consumer Insight Synthesis
 - **Role**: Lead Systems Architect & Full Stack Engineer
 - **Tools & Tech Stack**: Python 3.12, Flask, Asyncio, Pydantic v2, React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, OpenAI GPT-4o-mini, Tavily API, Puppeteer-core
